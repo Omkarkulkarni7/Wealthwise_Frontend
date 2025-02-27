@@ -18,6 +18,8 @@ import { Visibility, VisibilityOff, Email, Lock } from "@mui/icons-material";
 import API from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 
+
+
 const StyledContainer = styled(Box)({
   minHeight: "100vh",
   display: "flex",
@@ -55,30 +57,29 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   
   const navigate = useNavigate();
+  
   const { login } = useAuth();
 
+  // Update Login.jsx handleSubmit function
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     
     try {
-      const response = await API.post("/auth/login", { email, password });
-      localStorage.setItem("accessToken", response.data.accessToken);
-      
-      // Update user in context
-      login({
-        userId: response.data.userId || response.data.user?.userId,
-        role: response.data.role || response.data.user?.role
-      });
-      
-      navigate("/dashboard/home");
+        const response = await API.post("/auth/login", { email, password });
+        localStorage.setItem("accessToken", response.data.accessToken);
+        
+        // Call login to refresh user data from the backend
+        await login();
+        
+        navigate("/dashboard/home");
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid email or password");
+        setError(err.response?.data?.message || "Invalid email or password");
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   return (
     <StyledContainer>
